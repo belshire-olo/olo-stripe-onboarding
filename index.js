@@ -37,9 +37,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var stripe_1 = require("stripe");
+var fs_1 = require("fs");
 var stripe = new stripe_1["default"]('***REMOVED***', { apiVersion: '2022-08-01' });
 var account;
 var person;
+var frontID;
+var backId;
 var externalAccount;
 var piiToken;
 var externalAccountToken;
@@ -127,6 +130,39 @@ function createExternalAccountToken() {
         });
     });
 }
+function uploadIdDocuments() {
+    return __awaiter(this, void 0, void 0, function () {
+        var frontFile, backFile;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    frontFile = fs_1["default"].readFileSync('fixtures/test-id-front.jpeg');
+                    backFile = fs_1["default"].readFileSync('fixtures/test-id-back.png');
+                    return [4 /*yield*/, stripe.files.create({
+                            purpose: 'identity_document',
+                            file: {
+                                data: frontFile,
+                                name: 'test-id-front.jpeg',
+                                type: 'application/octet-stream'
+                            }
+                        })];
+                case 1:
+                    frontID = _a.sent();
+                    return [4 /*yield*/, stripe.files.create({
+                            purpose: 'identity_document',
+                            file: {
+                                data: backFile,
+                                name: 'test-id-back.png',
+                                type: 'application/octet-stream'
+                            }
+                        })];
+                case 2:
+                    backId = _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 function createPerson() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -157,6 +193,12 @@ function createPerson() {
                             relationship: {
                                 title: 'CTO',
                                 representative: true
+                            },
+                            verification: {
+                                document: {
+                                    front: frontID.id,
+                                    back: backId.id
+                                }
                             }
                         })];
                 case 1:
@@ -194,11 +236,14 @@ function main() {
                     return [4 /*yield*/, createExternalAccountToken()];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, createPerson()];
+                    return [4 /*yield*/, uploadIdDocuments()];
                 case 4:
                     _a.sent();
-                    return [4 /*yield*/, createExternalAccount()];
+                    return [4 /*yield*/, createPerson()];
                 case 5:
+                    _a.sent();
+                    return [4 /*yield*/, createExternalAccount()];
+                case 6:
                     _a.sent();
                     return [2 /*return*/];
             }

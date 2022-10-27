@@ -1,11 +1,11 @@
 import Stripe from "stripe";
-import fs from 'fs';
+import * as fs from 'fs';
 
 const stripe = new Stripe('***REMOVED***', { apiVersion: '2022-08-01'});
 
 let account: Stripe.Account;
 let person: Stripe.Person;
-let frontID: Stripe.File;
+let frontId: Stripe.File;
 let backId: Stripe.File;
 let externalAccount: Stripe.Response<Stripe.BankAccount | Stripe.Card>;
 let piiToken: Stripe.Token;
@@ -50,14 +50,17 @@ async function createAccount() {
 }
 
 async function createPIIToken() {
+    console.log("Creating PII Token");
     piiToken = await stripe.tokens.create({
         pii: {
             id_number: '555555555'
         }
     });
+    console.log(piiToken);
 }
 
 async function createExternalAccountToken() {
+    console.log("Creating external account token");
     externalAccountToken = await stripe.tokens.create({
         bank_account: {
             country: 'US',
@@ -68,13 +71,15 @@ async function createExternalAccountToken() {
             account_number: '000123456789',
         }
     })
+    console.log(externalAccountToken);
 }
 
 async function uploadIdDocuments() {
+    console.log("Uploading ID Documents");
     const frontFile = fs.readFileSync('fixtures/test-id-front.jpeg');
     const backFile = fs.readFileSync('fixtures/test-id-back.png');
 
-    frontID = await stripe.files.create({
+    frontId = await stripe.files.create({
         purpose: 'identity_document',
         file: {
             data: frontFile,
@@ -82,6 +87,7 @@ async function uploadIdDocuments() {
             type: 'application/octet-stream',
         },
     });
+    console.log(frontId);
 
     backId = await stripe.files.create({
         purpose: 'identity_document',
@@ -91,12 +97,10 @@ async function uploadIdDocuments() {
             type: 'application/octet-stream',
         },
     })
+    console.log(backId);
 }
 
 async function createPerson() {
-    console.log('creating pii token');
-
-    console.log(piiToken);
     console.log('creating person');
     person = await stripe.accounts.createPerson(account.id, {
         first_name: 'Blake',
@@ -123,7 +127,7 @@ async function createPerson() {
         },
         verification: {
             document: {
-                front: frontID.id,
+                front: frontId.id,
                 back: backId.id
             }
         }
@@ -132,9 +136,11 @@ async function createPerson() {
 }
 
 async function createExternalAccount() {
+    console.log("Creating External Account");
     externalAccount = await stripe.accounts.createExternalAccount(account.id, {
         external_account: externalAccountToken.id
     })
+    console.log(externalAccount);
 }
 
 async function main() {
