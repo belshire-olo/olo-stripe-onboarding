@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/belshire-olo/olo-stripe-onboarding#readme",
   "dependencies": {
-    "@stripe/stripe-js": "^1.42.0",
     "stripe": "^10.15.0"
   },
   "devDependencies": {

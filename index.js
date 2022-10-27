@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,32 +35,174 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var stripe = require('stripe')('***REMOVED***');
+exports.__esModule = true;
+var stripe_1 = require("stripe");
+var stripe = new stripe_1["default"]('***REMOVED***', { apiVersion: '2022-08-01' });
 var account;
+var person;
+var externalAccount;
+var piiToken;
+var externalAccountToken;
 function createAccount() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, stripe.accounts.create({
-                        country: 'US',
-                        type: 'custom',
-                        capabilities: {
-                            card_payments: { requested: true },
-                            transfers: { requested: true }
-                        }
-                    })];
+                case 0:
+                    console.log('creating account');
+                    return [4 /*yield*/, stripe.accounts.create({
+                            country: 'US',
+                            type: 'custom',
+                            business_type: 'company',
+                            capabilities: {
+                                card_payments: { requested: true },
+                                transfers: { requested: true }
+                            },
+                            tos_acceptance: {
+                                date: 1666899261,
+                                ip: '8.8.8.8'
+                            },
+                            company: {
+                                address: {
+                                    line1: '1 World Trade Center, 82nd Floor',
+                                    line2: '285 Fulton Street',
+                                    city: 'New York',
+                                    state: 'NY',
+                                    postal_code: '10007',
+                                    country: 'US'
+                                },
+                                phone: '4055964651',
+                                name: 'OLO Restaurant 1',
+                                tax_id: '123456789'
+                            },
+                            business_profile: {
+                                mcc: '5812',
+                                url: 'https://www.olotest.com',
+                                name: 'OLO Restaurant',
+                                support_email: 'test@test.com',
+                                support_phone: '4055964650'
+                            }
+                        })];
                 case 1:
                     account = _a.sent();
+                    console.log(account);
                     return [2 /*return*/];
             }
         });
     });
 }
-function updateAccount() {
+function createPIIToken() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, stripe.tokens.create({
+                        pii: {
+                            id_number: '555555555'
+                        }
+                    })];
+                case 1:
+                    piiToken = _a.sent();
+                    return [2 /*return*/];
+            }
         });
     });
 }
-createAccount();
+function createExternalAccountToken() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, stripe.tokens.create({
+                        bank_account: {
+                            country: 'US',
+                            currency: 'usd',
+                            account_holder_name: 'Jenny Rosen',
+                            account_holder_type: 'company',
+                            routing_number: '110000000',
+                            account_number: '000123456789'
+                        }
+                    })];
+                case 1:
+                    externalAccountToken = _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function createPerson() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    console.log('creating pii token');
+                    console.log(piiToken);
+                    console.log('creating person');
+                    return [4 /*yield*/, stripe.accounts.createPerson(account.id, {
+                            first_name: 'Blake',
+                            last_name: 'Elshire',
+                            email: 'blake.elshire@olo.com',
+                            id_number: piiToken.id,
+                            dob: {
+                                day: 14,
+                                month: 1,
+                                year: 1982
+                            },
+                            address: {
+                                line1: '1 World Trade Center, 82nd Floor',
+                                line2: '285 Fulton Street',
+                                city: 'New York',
+                                state: 'NY',
+                                postal_code: '10007'
+                            },
+                            phone: '555-555-5555',
+                            ssn_last_4: '5555',
+                            relationship: {
+                                title: 'CTO',
+                                representative: true
+                            }
+                        })];
+                case 1:
+                    person = _a.sent();
+                    console.log(person);
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function createExternalAccount() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, stripe.accounts.createExternalAccount(account.id, {
+                        external_account: externalAccountToken.id
+                    })];
+                case 1:
+                    externalAccount = _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function main() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, createAccount()];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, createPIIToken()];
+                case 2:
+                    _a.sent();
+                    return [4 /*yield*/, createExternalAccountToken()];
+                case 3:
+                    _a.sent();
+                    return [4 /*yield*/, createPerson()];
+                case 4:
+                    _a.sent();
+                    return [4 /*yield*/, createExternalAccount()];
+                case 5:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+main();
