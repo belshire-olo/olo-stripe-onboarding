@@ -1,0 +1,26 @@
+{
+  "name": "olo-stripe-onboarding",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/belshire-olo/olo-stripe-onboarding.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/belshire-olo/olo-stripe-onboarding/issues"
+  },
+  "homepage": "https://github.com/belshire-olo/olo-stripe-onboarding#readme",
+  "dependencies": {
+    "@stripe/stripe-js": "^1.42.0",
+    "stripe": "^10.15.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4"
+  }
+}
