@@ -35,13 +35,13 @@ async function createAccount() {
                 country: 'US'
             },
             phone: '4055964651',
-            name: 'OLO Restaurant 1',
+            name: 'OLO Pay Test 1',
             tax_id: '123456789'
         },
         business_profile: {
             mcc: '5812',
             url: 'https://www.olotest.com',
-            name: 'OLO Restaurant',
+            name: 'OLO Pay Test',
             support_email: 'test@test.com',
             support_phone: '4055964650'
         }

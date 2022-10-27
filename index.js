@@ -37,11 +37,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var stripe_1 = require("stripe");
-var fs_1 = require("fs");
+var fs = require("fs");
 var stripe = new stripe_1["default"]('***REMOVED***', { apiVersion: '2022-08-01' });
 var account;
 var person;
-var frontID;
+var frontId;
 var backId;
 var externalAccount;
 var piiToken;
@@ -74,13 +74,13 @@ function createAccount() {
                                     country: 'US'
                                 },
                                 phone: '4055964651',
-                                name: 'OLO Restaurant 1',
+                                name: 'OLO Pay Test 1',
                                 tax_id: '123456789'
                             },
                             business_profile: {
                                 mcc: '5812',
                                 url: 'https://www.olotest.com',
-                                name: 'OLO Restaurant',
+                                name: 'OLO Pay Test',
                                 support_email: 'test@test.com',
                                 support_phone: '4055964650'
                             }
@@ -97,13 +97,16 @@ function createPIIToken() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, stripe.tokens.create({
-                        pii: {
-                            id_number: '555555555'
-                        }
-                    })];
+                case 0:
+                    console.log("Creating PII Token");
+                    return [4 /*yield*/, stripe.tokens.create({
+                            pii: {
+                                id_number: '555555555'
+                            }
+                        })];
                 case 1:
                     piiToken = _a.sent();
+                    console.log(piiToken);
                     return [2 /*return*/];
             }
         });
@@ -113,18 +116,21 @@ function createExternalAccountToken() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, stripe.tokens.create({
-                        bank_account: {
-                            country: 'US',
-                            currency: 'usd',
-                            account_holder_name: 'Jenny Rosen',
-                            account_holder_type: 'company',
-                            routing_number: '110000000',
-                            account_number: '000123456789'
-                        }
-                    })];
+                case 0:
+                    console.log("Creating external account token");
+                    return [4 /*yield*/, stripe.tokens.create({
+                            bank_account: {
+                                country: 'US',
+                                currency: 'usd',
+                                account_holder_name: 'Jenny Rosen',
+                                account_holder_type: 'company',
+                                routing_number: '110000000',
+                                account_number: '000123456789'
+                            }
+                        })];
                 case 1:
                     externalAccountToken = _a.sent();
+                    console.log(externalAccountToken);
                     return [2 /*return*/];
             }
         });
@@ -136,8 +142,9 @@ function uploadIdDocuments() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    frontFile = fs_1["default"].readFileSync('fixtures/test-id-front.jpeg');
-                    backFile = fs_1["default"].readFileSync('fixtures/test-id-back.png');
+                    console.log("Uploading ID Documents");
+                    frontFile = fs.readFileSync('fixtures/test-id-front.jpeg');
+                    backFile = fs.readFileSync('fixtures/test-id-back.png');
                     return [4 /*yield*/, stripe.files.create({
                             purpose: 'identity_document',
                             file: {
@@ -147,7 +154,8 @@ function uploadIdDocuments() {
                             }
                         })];
                 case 1:
-                    frontID = _a.sent();
+                    frontId = _a.sent();
+                    console.log(frontId);
                     return [4 /*yield*/, stripe.files.create({
                             purpose: 'identity_document',
                             file: {
@@ -158,6 +166,7 @@ function uploadIdDocuments() {
                         })];
                 case 2:
                     backId = _a.sent();
+                    console.log(backId);
                     return [2 /*return*/];
             }
         });
@@ -168,8 +177,6 @@ function createPerson() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.log('creating pii token');
-                    console.log(piiToken);
                     console.log('creating person');
                     return [4 /*yield*/, stripe.accounts.createPerson(account.id, {
                             first_name: 'Blake',
@@ -196,7 +203,7 @@ function createPerson() {
                             },
                             verification: {
                                 document: {
-                                    front: frontID.id,
+                                    front: frontId.id,
                                     back: backId.id
                                 }
                             }
@@ -213,11 +220,14 @@ function createExternalAccount() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, stripe.accounts.createExternalAccount(account.id, {
-                        external_account: externalAccountToken.id
-                    })];
+                case 0:
+                    console.log("Creating External Account");
+                    return [4 /*yield*/, stripe.accounts.createExternalAccount(account.id, {
+                            external_account: externalAccountToken.id
+                        })];
                 case 1:
                     externalAccount = _a.sent();
+                    console.log(externalAccount);
                     return [2 /*return*/];
             }
         });
