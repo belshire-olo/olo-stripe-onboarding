@@ -40,11 +40,15 @@ var stripe_1 = require("stripe");
 var fs = require("fs");
 var stripe = new stripe_1["default"]('***REMOVED***', { apiVersion: '2022-08-01' });
 var account;
-var person;
+var representative;
+var owner;
 var frontId;
 var backId;
+var frontId2;
+var backId2;
 var externalAccount;
 var piiToken;
+var piiToken2;
 var externalAccountToken;
 function createAccount() {
     return __awaiter(this, void 0, void 0, function () {
@@ -66,8 +70,8 @@ function createAccount() {
                             },
                             company: {
                                 address: {
-                                    line1: '1 World Trade Center, 82nd Floor',
-                                    line2: '285 Fulton Street',
+                                    line1: 'One World Trade Center',
+                                    line2: '82nd Floor',
                                     city: 'New York',
                                     state: 'NY',
                                     postal_code: '10007',
@@ -98,7 +102,7 @@ function createPIIToken() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.log("Creating PII Token");
+                    console.log("Creating PII Tokens");
                     return [4 /*yield*/, stripe.tokens.create({
                             pii: {
                                 id_number: '555555555'
@@ -106,6 +110,14 @@ function createPIIToken() {
                         })];
                 case 1:
                     piiToken = _a.sent();
+                    console.log(piiToken);
+                    return [4 /*yield*/, stripe.tokens.create({
+                            pii: {
+                                id_number: '555555556'
+                            }
+                        })];
+                case 2:
+                    piiToken2 = _a.sent();
                     console.log(piiToken);
                     return [2 /*return*/];
             }
@@ -167,30 +179,52 @@ function uploadIdDocuments() {
                 case 2:
                     backId = _a.sent();
                     console.log(backId);
+                    return [4 /*yield*/, stripe.files.create({
+                            purpose: 'identity_document',
+                            file: {
+                                data: frontFile,
+                                name: 'test-id-front.jpeg',
+                                type: 'application/octet-stream'
+                            }
+                        })];
+                case 3:
+                    frontId2 = _a.sent();
+                    console.log(frontId2);
+                    return [4 /*yield*/, stripe.files.create({
+                            purpose: 'identity_document',
+                            file: {
+                                data: backFile,
+                                name: 'test-id-back.png',
+                                type: 'application/octet-stream'
+                            }
+                        })];
+                case 4:
+                    backId2 = _a.sent();
+                    console.log(backId2);
                     return [2 /*return*/];
             }
         });
     });
 }
-function createPerson() {
+function createRepresentative() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.log('creating person');
+                    console.log('creating representative');
                     return [4 /*yield*/, stripe.accounts.createPerson(account.id, {
                             first_name: 'Blake',
                             last_name: 'Elshire',
                             email: 'blake.elshire@olo.com',
-                            id_number: piiToken.id,
+                            id_number: piiToken2.id,
                             dob: {
                                 day: 14,
                                 month: 1,
                                 year: 1982
                             },
                             address: {
-                                line1: '1 World Trade Center, 82nd Floor',
-                                line2: '285 Fulton Street',
+                                line1: 'One World Trade Center',
+                                line2: '82nd Floor',
                                 city: 'New York',
                                 state: 'NY',
                                 postal_code: '10007'
@@ -199,7 +233,8 @@ function createPerson() {
                             ssn_last_4: '5555',
                             relationship: {
                                 title: 'CTO',
-                                representative: true
+                                representative: true,
+                                executive: true
                             },
                             verification: {
                                 document: {
@@ -209,8 +244,54 @@ function createPerson() {
                             }
                         })];
                 case 1:
-                    person = _a.sent();
-                    console.log(person);
+                    representative = _a.sent();
+                    console.log(representative);
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function createOwner() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    console.log('creating owner');
+                    return [4 /*yield*/, stripe.accounts.createPerson(account.id, {
+                            first_name: 'Erik',
+                            last_name: 'Parker',
+                            email: 'erik.parker@olo.com',
+                            id_number: piiToken.id,
+                            dob: {
+                                day: 14,
+                                month: 1,
+                                year: 1982
+                            },
+                            address: {
+                                line1: 'One World Trade Center',
+                                line2: '82nd Floor',
+                                city: 'New York',
+                                state: 'NY',
+                                postal_code: '10007'
+                            },
+                            phone: '555-555-5555',
+                            ssn_last_4: '5555',
+                            relationship: {
+                                title: 'ceo',
+                                owner: true,
+                                executive: true,
+                                percent_ownership: 50
+                            },
+                            verification: {
+                                document: {
+                                    front: frontId2.id,
+                                    back: backId2.id
+                                }
+                            }
+                        })];
+                case 1:
+                    owner = _a.sent();
+                    console.log(owner);
                     return [2 /*return*/];
             }
         });
@@ -233,28 +314,76 @@ function createExternalAccount() {
         });
     });
 }
-function main() {
+function updateOwnership() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, createAccount()];
+                case 0: return [4 /*yield*/, stripe.accounts.update(account.id, {
+                        company: {
+                            owners_provided: true,
+                            ownership_declaration: {
+                                date: 1666899261,
+                                ip: '8.8.8.8'
+                            }
+                        }
+                    })];
                 case 1:
                     _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function main() {
+    return __awaiter(this, void 0, void 0, function () {
+        var final_account;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: 
+                // Create connected account scaffold with any info we have
+                return [4 /*yield*/, createAccount()];
+                case 1:
+                    // Create connected account scaffold with any info we have
+                    _a.sent();
+                    // Generate tokens for PII
                     return [4 /*yield*/, createPIIToken()];
                 case 2:
+                    // Generate tokens for PII
                     _a.sent();
+                    // Generate token for Bank Account
                     return [4 /*yield*/, createExternalAccountToken()];
                 case 3:
+                    // Generate token for Bank Account
                     _a.sent();
+                    // Upload any ID documents collected
                     return [4 /*yield*/, uploadIdDocuments()];
                 case 4:
+                    // Upload any ID documents collected
                     _a.sent();
-                    return [4 /*yield*/, createPerson()];
+                    // Create a representative attached to the connected account
+                    return [4 /*yield*/, createRepresentative()];
                 case 5:
+                    // Create a representative attached to the connected account
                     _a.sent();
-                    return [4 /*yield*/, createExternalAccount()];
+                    // Create an owner representative attached to the connected account
+                    return [4 /*yield*/, createOwner()];
                 case 6:
+                    // Create an owner representative attached to the connected account
                     _a.sent();
+                    // Attach external account token to the connected account
+                    return [4 /*yield*/, createExternalAccount()];
+                case 7:
+                    // Attach external account token to the connected account
+                    _a.sent();
+                    // Update the base account saying we have collected ownership information
+                    return [4 /*yield*/, updateOwnership()];
+                case 8:
+                    // Update the base account saying we have collected ownership information
+                    _a.sent();
+                    return [4 /*yield*/, stripe.accounts.retrieve(account.id)];
+                case 9:
+                    final_account = _a.sent();
+                    console.log(final_account);
                     return [2 /*return*/];
             }
         });
